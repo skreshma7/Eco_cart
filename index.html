@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EcoCart</title>
+<style>
+:root{
+  --bg:#f5f7f2; --surface:#ffffff; --text:#1d2a22; --muted:#5b6b61; --line:#dfe6dc;
+  --brand:#1f6b45; --brand-ink:#ffffff; --focus:#0b57d0;
+  --A:#1b7f3b; --B:#4c8c1f; --C:#f2c200; --D:#f08a00; --E:#d9541e; --F:#c62828; --N:#5f6670;
+  --A-ink:#fff; --B-ink:#fff; --C-ink:#1d1d1d; --D-ink:#1d1d1d; --E-ink:#fff; --F-ink:#fff; --N-ink:#fff;
+}
+@media (prefers-color-scheme: dark){
+  :root{--bg:#121a15; --surface:#1b261f; --text:#e8f0ea; --muted:#9fb0a5; --line:#2c3b31; --brand:#4cc38a; --brand-ink:#0b1a12; --focus:#8ab4ff;}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+button,select,input{font:inherit;color:inherit}
+header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.bar{max-width:1200px;margin:0 auto;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.logo{font-weight:800;font-size:1.25rem;color:var(--brand);margin-right:auto}
+nav{display:flex;gap:6px}
+.tab{background:none;border:1px solid var(--line);border-radius:999px;padding:6px 14px;cursor:pointer}
+.tab[aria-current="page"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.layout{max-width:1200px;margin:0 auto;padding:16px;display:grid;grid-template-columns:260px 1fr;gap:20px;align-items:start}
+aside{position:sticky;top:72px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;max-height:calc(100vh - 90px);overflow:auto}
+aside h2{font-size:1rem;margin:0 0 10px}
+.field{margin-bottom:14px}
+.field label,.field legend{display:block;font-weight:600;font-size:.9rem;margin-bottom:4px}
+fieldset{border:0;padding:0;margin:0 0 14px}
+.field input[type=search],.field select{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}
+.check{display:flex;gap:8px;align-items:center;padding:2px 0}
+input[type=range]{width:100%}
+.btn{border:1px solid var(--brand);background:var(--brand);color:var(--brand-ink);padding:7px 12px;border-radius:8px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.small{padding:4px 10px;font-size:.88rem}
+.filter-toggle{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.card h3{margin:0;font-size:1rem}
+.brand{color:var(--muted);font-size:.85rem}
+.price{font-weight:700;font-size:1.1rem}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:3px 10px;font-weight:700;font-size:.85rem;width:fit-content}
+.badge b{font-size:1.05rem}
+.s-A{background:var(--A);color:var(--A-ink)}.s-B{background:var(--B);color:var(--B-ink)}.s-C{background:var(--C);color:var(--C-ink)}
+.s-D{background:var(--D);color:var(--D-ink)}.s-E{background:var(--E);color:var(--E-ink)}.s-F{background:var(--F);color:var(--F-ink)}
+.s-N{background:var(--N);color:var(--N-ink)}
+.flag{border:1px dashed var(--N);color:var(--muted);border-radius:8px;padding:6px 8px;font-size:.85rem}
+.meta{font-size:.85rem;color:var(--muted)}
+.actions{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.results-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th[scope=row]{background:var(--bg);width:140px}
+td.best{box-shadow:inset 0 0 0 2px var(--A)}
+.notice{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;text-align:center;color:var(--muted)}
+.cmpbar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;z-index:15}
+.cmpbar[hidden]{display:none}
+.live{position:absolute;left:-9999px}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);max-width:420px;width:92%}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.listbox{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px;margin-bottom:14px}
+.listbox h3{margin:0 0 8px}
+.legend{display:flex;gap:6px;flex-wrap:wrap}
+main{padding-bottom:70px}
+@media (max-width:800px){
+  .layout{grid-template-columns:1fr}
+  aside{position:static;max-height:none}
+  aside.collapsed .panel{display:none}
+  .filter-toggle{display:inline-block}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <span class="logo">🌿 EcoCart</span>
+    <nav aria-label="Main">
+      <button class="tab" data-view="shop">Shop</button>
+      <button class="tab" data-view="compare">Compare (<span id="cmpCount">0</span>)</button>
+      <button class="tab" data-view="lists">Wishlists</button>
+    </nav>
+  </div>
+</header>
+
+<div class="layout">
+  <aside id="filters" aria-label="Filters">
+    <h2>Filters <button class="btn small ghost filter-toggle" id="ftoggle" aria-expanded="true">Hide</button></h2>
+    <div class="panel">
+      <div class="field"><label for="q">Search</label><input id="q" type="search" placeholder="Name, brand, material"></div>
+      <fieldset id="catSet"><legend>Category</legend></fieldset>
+      <div class="field"><label for="minScore">Minimum eco-score</label>
+        <select id="minScore">
+          <option value="">Any</option>
+          <option value="A">A – Excellent only</option>
+          <option value="B">B – Good or better</option>
+          <option value="C">C – Fair or better</option>
+          <option value="D">D – Poor or better</option>
+          <option value="E">E – Very poor or better</option>
+        </select></div>
+      <div class="field"><label for="maxPrice">Max price: <output id="priceOut">$100</output></label>
+        <input id="maxPrice" type="range" min="5" max="100" step="1" value="100"></div>
+      <div class="check"><input id="hideUnrated" type="checkbox"><label for="hideUnrated">Hide products with no eco-data</label></div>
+      <div class="field" style="margin-top:12px"><label for="sort">Sort by</label>
+        <select id="sort">
+          <option value="eco">Best eco-score</option>
+          <option value="price_asc">Price: low to high</option>
+          <option value="price_desc">Price: high to low</option>
+          <option value="name">Name</option>
+        </select></div>
+      <button class="btn ghost small" id="reset">Reset filters</button>
+      <h2 style="margin-top:18px">Eco-score key</h2>
+      <div class="legend" id="legend"></div>
+    </div>
+  </aside>
+
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<div class="cmpbar" id="cmpbar" hidden>
+  <span id="cmpText"></span>
+  <button class="btn" id="goCompare">Compare now</button>
+  <button class="btn ghost" id="clearCompare">Clear</button>
+</div>
+
+<dialog id="wlDialog" aria-labelledby="wlTitle">
+  <form method="dialog">
+    <h3 id="wlTitle">Save to wishlist</h3>
+    <div id="wlChoices"></div>
+    <div class="field" style="margin-top:10px">
+      <label for="newList">Or create a new wishlist</label>
+      <input id="newList" type="text" placeholder="e.g. Zero-waste kitchen" style="width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)">
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn ghost" value="cancel">Cancel</button>
+      <button class="btn" id="wlSave" value="ok">Save</button>
+    </div>
+  </form>
+</dialog>
+<div class="live" id="live" role="status" aria-live="polite"></div>
+
+<script>
+const EMBEDDED = [{"id": 1, "name": "Bamboo Toothbrush 4-Pack", "brand": "BambooBright", "category": "Personal Care", "price": 9.99, "score": "A", "co2": 0.3, "materials": "FSC bamboo, plant-based bristles", "certs": "FSC, Plastic-Free"}, {"id": 2, "name": "Solid Shampoo Bar", "brand": "PureLather", "category": "Personal Care", "price": 11.5, "score": "A", "co2": 0.5, "materials": "Plant oils, no plastic packaging", "certs": "Leaping Bunny, Vegan"}, {"id": 3, "name": "Disposable Plastic Razors (20)", "brand": "QuickShave", "category": "Personal Care", "price": 6.49, "score": "F", "co2": 4.8, "materials": "Virgin plastic, steel", "certs": "None"}, {"id": 4, "name": "Mineral Face Lotion", "brand": "GlowNest", "category": "Personal Care", "price": 18.0, "score": null, "co2": null, "materials": null, "certs": null}, {"id": 5, "name": "Stainless Steel Water Bottle", "brand": "HydroLoop", "category": "Kitchen", "price": 24.0, "score": "B", "co2": 2.1, "materials": "Recycled 18/8 stainless steel", "certs": "BPA-Free"}, {"id": 6, "name": "Beeswax Food Wraps (3)", "brand": "HiveWrap", "category": "Kitchen", "price": 14.0, "score": "A", "co2": 0.4, "materials": "Organic cotton, beeswax, jojoba oil", "certs": "GOTS"}, {"id": 7, "name": "Plastic Cling Film 3-Roll", "brand": "WrapMax", "category": "Kitchen", "price": 7.99, "score": "F", "co2": 3.9, "materials": "PVC film", "certs": "None"}, {"id": 8, "name": "Cast Iron Skillet 10in", "brand": "IronHearth", "category": "Kitchen", "price": 32.0, "score": "B", "co2": 6.5, "materials": "Cast iron (long lifespan)", "certs": "Lifetime warranty"}, {"id": 9, "name": "Non-Stick Pan Set", "brand": "EasyCook", "category": "Kitchen", "price": 45.0, "score": "D", "co2": 9.2, "materials": "Aluminium, PTFE coating", "certs": "None"}, {"id": 10, "name": "Organic Cotton T-Shirt", "brand": "Threadful", "category": "Clothing", "price": 22.0, "score": "B", "co2": 3.4, "materials": "100% organic cotton", "certs": "GOTS, Fair Trade"}, {"id": 11, "name": "Recycled Fleece Jacket", "brand": "TrailCycle", "category": "Clothing", "price": 68.0, "score": "B", "co2": 9.0, "materials": "Recycled PET bottles", "certs": "bluesign"}, {"id": 12, "name": "Fast-Fashion Polyester Dress", "brand": "TrendBox", "category": "Clothing", "price": 19.0, "score": "E", "co2": 14.0, "materials": "Virgin polyester", "certs": "None"}, {"id": 13, "name": "Linen Shirt", "brand": "FlaxFolk", "category": "Clothing", "price": 39.0, "score": null, "co2": null, "materials": null, "certs": null}, {"id": 14, "name": "Refillable Laundry Detergent Tabs", "brand": "CleanLeaf", "category": "Cleaning", "price": 13.0, "score": "A", "co2": 0.7, "materials": "Plant-based surfactants, compostable pouch", "certs": "EU Ecolabel"}, {"id": 15, "name": "Concentrated All-Purpose Cleaner", "brand": "GreenSplash", "category": "Cleaning", "price": 8.75, "score": "B", "co2": 0.9, "materials": "Biodegradable formula, refill pouch", "certs": "Safer Choice"}, {"id": 16, "name": "Bleach Spray 1L", "brand": "MegaWhite", "category": "Cleaning", "price": 3.99, "score": "D", "co2": 1.6, "materials": "Sodium hypochlorite, plastic bottle", "certs": "None"}, {"id": 17, "name": "Compostable Dish Sponges (6)", "brand": "SpongeEarth", "category": "Cleaning", "price": 7.2, "score": "A", "co2": 0.2, "materials": "Cellulose, coconut fibre", "certs": "Home Compostable"}, {"id": 18, "name": "Solar Power Bank 20,000 mAh", "brand": "SunVolt", "category": "Electronics", "price": 39.0, "score": "C", "co2": 18.0, "materials": "Recycled plastic casing, Li-ion", "certs": "RoHS"}, {"id": 19, "name": "LED Bulbs 8-Pack", "brand": "BrightLoop", "category": "Electronics", "price": 16.0, "score": "B", "co2": 4.0, "materials": "Recyclable aluminium base", "certs": "Energy Star"}, {"id": 20, "name": "Budget Wireless Earbuds", "brand": "SoundDash", "category": "Electronics", "price": 14.99, "score": "E", "co2": 22.0, "materials": "Mixed plastics, non-replaceable battery", "certs": "None"}, {"id": 21, "name": "Smart Speaker", "brand": "EchoHome", "category": "Electronics", "price": 59.0, "score": null, "co2": null, "materials": null, "certs": null}, {"id": 22, "name": "Recycled Wool Throw Blanket", "brand": "CosyCycle", "category": "Home", "price": 48.0, "score": "B", "co2": 6.0, "materials": "Recycled wool blend", "certs": "Global Recycled Standard"}, {"id": 23, "name": "Bamboo Bedsheet Set", "brand": "SleepGrove", "category": "Home", "price": 79.0, "score": "C", "co2": 11.0, "materials": "Bamboo viscose", "certs": "OEKO-TEX"}, {"id": 24, "name": "Scented Candle (paraffin)", "brand": "GlowCo", "category": "Home", "price": 12.0, "score": "D", "co2": 2.8, "materials": "Paraffin wax, synthetic fragrance", "certs": "None"}, {"id": 25, "name": "Reusable Camping Cutlery Set", "brand": "TrailBite", "category": "Outdoor", "price": 15.0, "score": "B", "co2": 1.2, "materials": "Recycled stainless steel", "certs": "BPA-Free"}, {"id": 26, "name": "Rechargeable Camping Lantern", "brand": "LumaTrek", "category": "Outdoor", "price": 27.0, "score": "C", "co2": 5.5, "materials": "Recycled ABS, Li-ion", "certs": "RoHS"}, {"id": 27, "name": "Disposable BBQ Grill", "brand": "FlameGo", "category": "Outdoor", "price": 5.5, "score": "F", "co2": 3.0, "materials": "Thin aluminium, charcoal, plastic", "certs": "None"}];
+const LABELS = {A:"Excellent",B:"Good",C:"Fair",D:"Poor",E:"Very poor",F:"Worst"};
+const RANK = {A:6,B:5,C:4,D:3,E:2,F:1};
+const MAX_COMPARE = 5, MIN_COMPARE = 2;
+
+const S = {
+  view: "shop", products: [], categories: [], cats: new Set(),
+  compare: new Set(JSON.parse(safeGet("eco.compare") || "[]")),
+  lists: JSON.parse(safeGet("eco.lists") || "{}"),
+  usingApi: false, pending: null
+};
+function safeGet(k){ try{return localStorage.getItem(k)}catch(e){return null} }
+function safeSet(k,v){ try{localStorage.setItem(k,v)}catch(e){} }
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => "$" + Number(n).toFixed(2);
+function announce(msg){ const l=$("#live"); l.textContent=""; setTimeout(()=>l.textContent=msg,30); }
+
+/* ---------- Data layer: SQLite API if available, else in-browser filter ---------- */
+function params(){
+  return {
+    q: $("#q").value.trim(), category: [...S.cats].join(","), min_score: $("#minScore").value,
+    max_price: $("#maxPrice").value, hide_unrated: $("#hideUnrated").checked ? "1":"0", sort: $("#sort").value
+  };
+}
+function localQuery(p){
+  let r = EMBEDDED.slice();
+  const cats = p.category ? p.category.split(",") : [];
+  if (cats.length) r = r.filter(x => cats.includes(x.category));
+  if (p.max_price) r = r.filter(x => x.price <= +p.max_price);
+  if (p.min_score) r = r.filter(x => x.score && RANK[x.score] >= RANK[p.min_score]);
+  if (p.hide_unrated === "1") r = r.filter(x => x.score);
+  if (p.q){ const q=p.q.toLowerCase(); r = r.filter(x => (x.name+" "+x.brand+" "+(x.materials||"")).toLowerCase().includes(q)); }
+  const cmp = {
+    eco:(a,b)=> (b.score?RANK[b.score]:-1)-(a.score?RANK[a.score]:-1) || a.price-b.price,
+    price_asc:(a,b)=>a.price-b.price, price_desc:(a,b)=>b.price-a.price, name:(a,b)=>a.name.localeCompare(b.name)
+  }[p.sort] || (()=>0);
+  return r.sort(cmp);
+}
+async function load(){
+  const p = params();
+  try{
+    const res = await fetch("/api/products?" + new URLSearchParams(p));
+    if(!res.ok) throw 0;
+    const d = await res.json();
+    S.products = d.products; S.usingApi = true;
+  }catch(e){
+    S.products = localQuery(p); S.usingApi = false;
+  }
+  render();
+}
+
+/* ---------- UI pieces ---------- */
+function badge(score){
+  if(!score) return `<span class="badge s-N" aria-label="No eco-data available"><b aria-hidden="true">?</b> No eco-data</span>`;
+  return `<span class="badge s-${score}" aria-label="Eco-score ${score}, ${LABELS[score]}"><b aria-hidden="true">${score}</b> ${LABELS[score]}</span>`;
+}
+function card(p){
+  const inCmp = S.compare.has(p.id);
+  const saved = Object.values(S.lists).some(l => l.includes(p.id));
+  return `<article class="card" aria-labelledby="n${p.id}">
+    ${badge(p.score)}
+    <div><h3 id="n${p.id}">${esc(p.name)}</h3><div class="brand">${esc(p.brand)} · ${esc(p.category)}</div></div>
+    <div class="price">${money(p.price)}</div>
+    ${p.score ? `<div class="meta">${esc(p.materials)}<br>CO₂e: ${p.co2} kg · ${esc(p.certs)}</div>`
+              : `<div class="flag" role="note">⚠ No verified sustainability data. Treat with caution.</div>`}
+    <div class="actions">
+      <label class="check"><input type="checkbox" data-cmp="${p.id}" ${inCmp?"checked":""}> Compare</label>
+      <button class="btn small ghost" data-save="${p.id}" aria-label="Save ${esc(p.name)} to a wishlist">${saved?"♥ Saved":"♡ Save"}</button>
+    </div>
+  </article>`;
+}
+function renderShop(){
+  const list = S.products;
+  $("#main").innerHTML = `
+    <div class="results-head"><strong>${list.length} product${list.length===1?"":"s"}</strong>
+      <span class="meta">${S.usingApi ? "Live from SQLite database" : "Offline mode (built-in data)"}</span></div>
+    ${list.length ? `<div class="grid">${list.map(card).join("")}</div>` : `<div class="notice">No products match these filters.</div>`}`;
+}
+function renderCompare(){
+  const items = [...S.compare].map(id => EMBEDDED.find(p=>p.id===id) || S.products.find(p=>p.id===id)).filter(Boolean);
+  if(items.length < MIN_COMPARE){
+    $("#main").innerHTML = `<div class="notice">Select ${MIN_COMPARE}–${MAX_COMPARE} products using the “Compare” checkboxes on the Shop tab. (${items.length} selected)</div>`;
+    return;
+  }
+  const bestRank = Math.max(...items.map(p=>p.score?RANK[p.score]:-1));
+  const minPrice = Math.min(...items.map(p=>p.price));
+  const row = (label, fn, bestFn) => `<tr><th scope="row">${label}</th>${items.map(p=>`<td class="${bestFn&&bestFn(p)?"best":""}">${fn(p)}</td>`).join("")}</tr>`;
+  $("#main").innerHTML = `
+    <div class="results-head"><h2 style="margin:0">Comparing ${items.length} products</h2><span class="meta">Green outline = best in row</span></div>
+    <div class="tablewrap"><table>
+      <caption class="live">Product comparison</caption>
+      <thead><tr><th scope="col">Product</th>${items.map(p=>`<th scope="col">${esc(p.name)}<br><button class="btn small ghost" data-rm="${p.id}">Remove</button></th>`).join("")}</tr></thead>
+      <tbody>
+        ${row("Eco-score", p=>badge(p.score), p=>p.score && RANK[p.score]===bestRank)}
+        ${row("Price", p=>money(p.price), p=>p.price===minPrice)}
+        ${row("Brand", p=>esc(p.brand))}
+        ${row("Category", p=>esc(p.category))}
+        ${row("CO₂e (kg)", p=>p.score?p.co2:"—")}
+        ${row("Materials", p=>p.score?esc(p.materials):"—")}
+        ${row("Certifications", p=>p.score?esc(p.certs):"—")}
+        ${row("Data status", p=>p.score?"Rated":"⚠ No eco-data")}
+      </tbody></table></div>`;
+}
+function renderLists(){
+  const names = Object.keys(S.lists);
+  const create = `<form id="mkList" class="listbox"><label for="mkName"><strong>Create a wishlist</strong></label>
+    <div style="display:flex;gap:8px;margin-top:6px"><input id="mkName" required placeholder="e.g. Plastic-free bathroom" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--bg)"><button class="btn">Create</button></div></form>`;
+  if(!names.length){ $("#main").innerHTML = create + `<div class="notice">No wishlists yet. Create one above, or tap “♡ Save” on any product.</div>`; return; }
+  $("#main").innerHTML = create + names.map(n => {
+    const items = S.lists[n].map(id => EMBEDDED.find(p=>p.id===id)).filter(Boolean);
+    const rated = items.filter(i=>i.score);
+    const avg = rated.length ? (rated.reduce((a,i)=>a+RANK[i.score],0)/rated.length) : null;
+    const grade = avg ? Object.keys(RANK).find(k=>RANK[k]===Math.round(avg)) : null;
+    return `<section class="listbox" aria-label="Wishlist ${esc(n)}">
+      <div class="results-head"><h3 style="margin:0">${esc(n)} <span class="meta">(${items.length})</span></h3>
+        <span>${grade?`Average ${badge(grade)}`:""} <button class="btn small ghost" data-dellist="${esc(n)}">Delete list</button></span></div>
+      ${items.length?`<div class="grid">${items.map(p=>`<div>${card(p)}<button class="btn small ghost" style="margin-top:6px" data-unsave="${esc(n)}|${p.id}">Remove from list</button></div>`).join("")}</div>`:`<div class="meta">Empty.</div>`}
+    </section>`;
+  }).join("");
+}
+function render(){
+  document.querySelectorAll(".tab").forEach(t => t.toggleAttribute("aria-current", t.dataset.view===S.view) || t.removeAttribute("aria-current"));
+  document.querySelectorAll(".tab").forEach(t => { if(t.dataset.view===S.view) t.setAttribute("aria-current","page"); });
+  $("#cmpCount").textContent = S.compare.size;
+  const showFilters = S.view==="shop";
+  $("#filters").style.display = showFilters ? "" : "none";
+  document.querySelector(".layout").style.gridTemplateColumns = showFilters ? "" : "1fr";
+  if(S.view==="shop") renderShop(); else if(S.view==="compare") renderCompare(); else renderLists();
+  const n = S.compare.size;
+  $("#cmpbar").hidden = !(n>0 && S.view==="shop");
+  $("#cmpText").textContent = `${n} of ${MAX_COMPARE} selected` + (n<MIN_COMPARE ? ` (pick at least ${MIN_COMPARE})` : "");
+  $("#goCompare").disabled = n < MIN_COMPARE;
+}
+function persist(){ safeSet("eco.compare", JSON.stringify([...S.compare])); safeSet("eco.lists", JSON.stringify(S.lists)); }
+
+/* ---------- Events ---------- */
+document.addEventListener("click", e => {
+  const t = e.target.closest("button"); if(!t) return;
+  if(t.classList.contains("tab")){ S.view = t.dataset.view; render(); }
+  else if(t.id==="goCompare"){ S.view="compare"; render(); }
+  else if(t.id==="clearCompare"){ S.compare.clear(); persist(); render(); announce("Comparison cleared"); }
+  else if(t.dataset.rm){ S.compare.delete(+t.dataset.rm); persist(); render(); }
+  else if(t.dataset.save){ openSave(+t.dataset.save); }
+  else if(t.dataset.dellist){ if(confirm(`Delete wishlist "${t.dataset.dellist}"?`)){ delete S.lists[t.dataset.dellist]; persist(); render(); } }
+  else if(t.dataset.unsave){ const [n,id]=t.dataset.unsave.split("|"); S.lists[n]=S.lists[n].filter(x=>x!==+id); persist(); render(); }
+  else if(t.id==="reset"){ resetFilters(); }
+  else if(t.id==="ftoggle"){ const a=$("#filters"); const c=a.classList.toggle("collapsed"); t.textContent=c?"Show":"Hide"; t.setAttribute("aria-expanded",!c); }
+});
+document.addEventListener("change", e => {
+  const id = e.target.dataset.cmp;
+  if(id){
+    if(e.target.checked){
+      if(S.compare.size>=MAX_COMPARE){ e.target.checked=false; announce(`You can compare at most ${MAX_COMPARE} products`); alert(`You can compare at most ${MAX_COMPARE} products.`); return; }
+      S.compare.add(+id);
+    } else S.compare.delete(+id);
+    persist(); render();
+  }
+});
+document.addEventListener("submit", e => {
+  if(e.target.id==="mkList"){ e.preventDefault(); const n=$("#mkName").value.trim(); if(n && !S.lists[n]){ S.lists[n]=[]; persist(); render(); announce("Wishlist created"); } }
+});
+let timer; function debounced(){ clearTimeout(timer); timer=setTimeout(load,150); }
+$("#q").addEventListener("input", debounced);
+["minScore","hideUnrated","sort"].forEach(id => $("#"+id).addEventListener("change", load));
+$("#maxPrice").addEventListener("input", () => { $("#priceOut").textContent = "$"+$("#maxPrice").value; debounced(); });
+
+function resetFilters(){
+  $("#q").value=""; $("#minScore").value=""; $("#maxPrice").value=100; $("#priceOut").textContent="$100";
+  $("#hideUnrated").checked=false; $("#sort").value="eco"; S.cats.clear();
+  document.querySelectorAll("#catSet input").forEach(i=>i.checked=false); load();
+}
+
+/* ---------- Wishlist dialog ---------- */
+function openSave(id){
+  S.pending = id;
+  const names = Object.keys(S.lists);
+  $("#wlChoices").innerHTML = names.length ? names.map((n,i)=>`<div class="check"><input type="checkbox" id="wl${i}" data-wl="${esc(n)}" ${S.lists[n].includes(id)?"checked":""}><label for="wl${i}">${esc(n)}</label></div>`).join("") : `<p class="meta">No wishlists yet. Create one below.</p>`;
+  $("#newList").value=""; $("#wlDialog").showModal();
+}
+$("#wlSave").addEventListener("click", () => {
+  const id = S.pending;
+  document.querySelectorAll("#wlChoices input").forEach(c => {
+    const n = c.dataset.wl, has = S.lists[n].includes(id);
+    if(c.checked && !has) S.lists[n].push(id);
+    if(!c.checked && has) S.lists[n] = S.lists[n].filter(x=>x!==id);
+  });
+  const nn = $("#newList").value.trim();
+  if(nn){ S.lists[nn] = S.lists[nn] || []; if(!S.lists[nn].includes(id)) S.lists[nn].push(id); }
+  persist(); render(); announce("Wishlist updated");
+});
+
+/* ---------- Init ---------- */
+(function init(){
+  const cats = [...new Set(EMBEDDED.map(p=>p.category))].sort();
+  $("#catSet").insertAdjacentHTML("beforeend", cats.map((c,i)=>`<div class="check"><input type="checkbox" id="c${i}" value="${esc(c)}"><label for="c${i}">${esc(c)}</label></div>`).join(""));
+  $("#catSet").addEventListener("change", e => { e.target.checked ? S.cats.add(e.target.value) : S.cats.delete(e.target.value); load(); });
+  $("#legend").innerHTML = Object.keys(LABELS).map(k=>`<span class="badge s-${k}"><b>${k}</b> ${LABELS[k]}</span>`).join("") + `<span class="badge s-N"><b>?</b> No data</span>`;
+  if(matchMedia("(max-width:800px)").matches){ $("#filters").classList.add("collapsed"); $("#ftoggle").textContent="Show"; $("#ftoggle").setAttribute("aria-expanded","false"); }
+  load();
+})();
+</script>
+</body>
+</html>
